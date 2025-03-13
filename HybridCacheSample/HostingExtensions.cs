@@ -113,7 +113,7 @@ internal static class HostingExtensions
         builder.Services.Insert(0,
             new ServiceDescriptor(
                 typeof(ICache<>),
-                typeof(NoOpCache<>),
+                typeof(HybridCache<>),
                 ServiceLifetime.Transient
             )
         );
