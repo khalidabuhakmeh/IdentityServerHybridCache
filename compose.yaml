@@ -1,0 +1,41 @@
+﻿
+services:
+  sql:
+    image: mcr.microsoft.com/mssql/server:latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Pass123$
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+  
+  sqlserver.configurator:
+    image: mcr.microsoft.com/mssql-tools
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Pass123$
+    depends_on:
+      sql:
+        condition: service_healthy
+    command: /opt/mssql-tools/bin/sqlcmd -S sql -U sa -P "Pass123$" -Q "CREATE DATABASE IdentityServer"
+  
+  hybridcachesample:
+    image: hybridcachesample
+    build:
+      context: .
+      dockerfile: HybridCacheSample/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - Seed=true
+      - ConnectionStrings__DefaultConnection=Server=sql,1433;Database=IdentityServer;User Id=sa;Password=Pass123$;TrustServerCertificate=True
+    depends_on:
+      sqlserver.configurator:
+        condition: service_completed_successfully
+

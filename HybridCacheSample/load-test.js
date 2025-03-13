@@ -11,7 +11,7 @@ export const options = {
 };
 
 export default function () {
-  const response = http.get('https://localhost:5001/.well-known/openid-configuration', {
+  const response = http.get('http://localhost:8080/.well-known/openid-configuration', {
     insecureSkipTLSVerify: true
   });
 

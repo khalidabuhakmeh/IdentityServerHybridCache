@@ -7,10 +7,10 @@ export const options = {
 };
 
 // Configuration
-const oidcProviderUrl = 'https://localhost:5001'; // Replace with your OIDC provider URL
-const clientIds = ['test_1', 'test_2', 'test_3']; // Replace with your client ID
-const clientSecret = 'BYqEqMvuQpW3yY14QJdFlA=='; // Replace with your client secret
-const scope = 'api'; // Replace with the scopes you need
+const oidcProviderUrl = 'http://localhost:8080'; // Replace with your OIDC provider URL
+const clientIds = ['m2m.client']; // Replace with your client ID
+const clientSecret = '511536EF-F270-4058-80CA-1C89C192F69A'; // Replace with your client secret
+const scope = 'scope1'; // Replace with the scopes you need
 
 export default function () {
   // 1. Construct the token request body

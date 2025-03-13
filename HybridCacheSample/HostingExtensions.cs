@@ -22,6 +22,7 @@ internal static class HostingExtensions
 
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+
         var isBuilder = builder.Services
                 .AddIdentityServer(options =>
                 {
@@ -60,7 +61,13 @@ internal static class HostingExtensions
                 // use caches
                 .AddConfigurationStoreCache()
             ;
-
+        
+        builder.Services.Configure<CookiePolicyOptions>(options =>
+        {
+            options.CheckConsentNeeded = context => false; //For development only, disable consent
+            options.MinimumSameSitePolicy = SameSiteMode.Lax; // Allow cross-site cookies (if needed)
+            options.Secure = CookieSecurePolicy.None; // Allow cookies on HTTP (VERY DANGEROUS IN PRODUCTION)
+        });
 
         builder.Services.AddAuthentication();
         // .AddGoogle(options =>
@@ -100,23 +107,23 @@ internal static class HostingExtensions
         //    options.Conventions.AuthorizeFolder("/ServerSideSessions", "admin"));
 
         // overwrite cache implementation
-        builder.Services.AddHybridCache(options =>
-        {
-            options.DefaultEntryOptions = new()
-            {
-                LocalCacheExpiration = TimeSpan.FromMinutes(5),
-                Expiration = TimeSpan.FromMinutes(5)
-            };
-        });
-        
-        builder.Services.RemoveAll(typeof(ICache<>));
-        builder.Services.Insert(0,
-            new ServiceDescriptor(
-                typeof(ICache<>),
-                typeof(HybridCache<>),
-                ServiceLifetime.Transient
-            )
-        );
+        // builder.Services.AddHybridCache(options =>
+        // {
+        //     options.DefaultEntryOptions = new()
+        //     {
+        //         LocalCacheExpiration = TimeSpan.FromMinutes(5),
+        //         Expiration = TimeSpan.FromMinutes(5)
+        //     };
+        // });
+        //
+        // builder.Services.RemoveAll(typeof(ICache<>));
+        // builder.Services.Insert(0,
+        //     new ServiceDescriptor(
+        //         typeof(ICache<>),
+        //         typeof(HybridCache<>),
+        //         ServiceLifetime.Transient
+        //     )
+        // );
 
         return builder.Build();
     }
@@ -131,6 +138,12 @@ internal static class HostingExtensions
         }
 
         app.UseStaticFiles();
+        app.UseCors(cors =>
+        {
+            cors.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
         app.UseRouting();
         app.UseIdentityServer();
         app.UseAuthorization();

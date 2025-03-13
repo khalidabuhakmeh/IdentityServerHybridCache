@@ -5,11 +5,11 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateBootstrapLogger();
 
-Log.Information("Starting up");
-
 try
 {
     var builder = WebApplication.CreateBuilder(args);
+    
+    Log.Information("Starting up - {args}", string.Join(", ", args));
 
     builder.Host.UseSerilog((ctx, lc) => lc
         .WriteTo.Console(
@@ -24,12 +24,11 @@ try
 
     // this seeding is only for the template to bootstrap the DB and users.
     // in production you will likely want a different approach.
-    if (args.Contains("/seed"))
+    if (app.Configuration["Seed"] is not null)
     {
         Log.Information("Seeding database...");
         SeedData.EnsureSeedData(app);
         Log.Information("Done seeding database. Exiting.");
-        return;
     }
 
     app.Run();
