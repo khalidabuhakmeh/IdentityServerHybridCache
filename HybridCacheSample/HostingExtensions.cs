@@ -100,23 +100,23 @@ internal static class HostingExtensions
         //    options.Conventions.AuthorizeFolder("/ServerSideSessions", "admin"));
 
         // overwrite cache implementation
-        // builder.Services.AddHybridCache(options =>
-        // {
-        //     options.DefaultEntryOptions = new()
-        //     {
-        //         LocalCacheExpiration = TimeSpan.FromMinutes(5),
-        //         Expiration = TimeSpan.FromMinutes(5)
-        //     };
-        // });
-        //
-        // builder.Services.RemoveAll(typeof(ICache<>));
-        // builder.Services.Insert(0,
-        //     new ServiceDescriptor(
-        //         typeof(ICache<>),
-        //         typeof(NoOpCache<>),
-        //         ServiceLifetime.Transient
-        //     )
-        // );
+        builder.Services.AddHybridCache(options =>
+        {
+            options.DefaultEntryOptions = new()
+            {
+                LocalCacheExpiration = TimeSpan.FromMinutes(5),
+                Expiration = TimeSpan.FromMinutes(5)
+            };
+        });
+        
+        builder.Services.RemoveAll(typeof(ICache<>));
+        builder.Services.Insert(0,
+            new ServiceDescriptor(
+                typeof(ICache<>),
+                typeof(NoOpCache<>),
+                ServiceLifetime.Transient
+            )
+        );
 
         return builder.Build();
     }
