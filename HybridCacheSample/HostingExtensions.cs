@@ -3,6 +3,7 @@ using Duende.IdentityServer.EntityFramework.Entities;
 using Duende.IdentityServer.Services;
 using HybridCacheSample;
 using HybridCacheSample.Caches;
+using HybridCacheSample.Goblins;
 using HybridCacheSample.Pages.Admin.ApiScopes;
 using HybridCacheSample.Pages.Admin.Clients;
 using HybridCacheSample.Pages.Admin.IdentityScopes;
@@ -41,9 +42,13 @@ internal static class HostingExtensions
                 .AddConfigurationStore(options =>
                 {
                     options.ConfigureDbContext = b =>
-                        b.LogTo(Log.Logger.Information, [DbLoggerCategory.Database.Command.Name])
+                        b
+                            //.LogTo(Log.Logger.Information, [DbLoggerCategory.Database.Command.Name])
                             .UseSqlServer(connectionString,
-                                dbOpts => dbOpts.MigrationsAssembly(typeof(Program).Assembly.FullName));
+                                dbOpts => dbOpts
+                                    .MigrationsAssembly(typeof(Program).Assembly.FullName)
+                                    .EnableRetryOnFailure()
+                            ).AddInterceptors(new GoblinMode(1000, 1000));
                 })
                 // this is something you will want in production to reduce load on and requests to the DB
                 //.AddConfigurationStoreCache()
@@ -52,16 +57,18 @@ internal static class HostingExtensions
                 .AddOperationalStore(options =>
                 {
                     options.ConfigureDbContext = b =>
-                        b.LogTo(Log.Logger.Information, [DbLoggerCategory.Database.Command.Name])
+                        b
+                            //.LogTo(Log.Logger.Information, [DbLoggerCategory.Database.Command.Name])
                             .UseSqlServer(connectionString,
                                 dbOpts => dbOpts
                                     .MigrationsAssembly(typeof(Program).Assembly.FullName)
-                            );
+                                    .EnableRetryOnFailure()
+                            ).AddInterceptors(new GoblinMode(1000, 1000));
                 })
-                // use caches
-                .AddConfigurationStoreCache()
+            // use caches
+            //.AddConfigurationStoreCache()
             ;
-        
+
         builder.Services.Configure<CookiePolicyOptions>(options =>
         {
             options.CheckConsentNeeded = context => false; //For development only, disable consent

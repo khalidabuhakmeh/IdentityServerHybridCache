@@ -1,4 +1,5 @@
 ﻿using HybridCacheSample;
+using HybridCacheSample.Goblins;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -30,6 +31,9 @@ try
         SeedData.EnsureSeedData(app);
         Log.Information("Done seeding database. Exiting.");
     }
+    
+    // let's slow it all down
+    GoblinMode.IsEnabled = true;
 
     app.Run();
 }

@@ -7,8 +7,7 @@ export const options = {
 };
 
 // Configuration
-const oidcProviderUrl = 'http://localhost:8080'; // Replace with your OIDC provider URL
-const clientIds = ['m2m.client']; // Replace with your client ID
+const oidcProviderUrl = 'https://localhost:5001'; // Replace with your OIDC provider URL
 const clientSecret = '511536EF-F270-4058-80CA-1C89C192F69A'; // Replace with your client secret
 const scope = 'scope1'; // Replace with the scopes you need
 
@@ -16,7 +15,7 @@ export default function () {
   // 1. Construct the token request body
   const tokenRequestBody = {
     grant_type: 'client_credentials',
-    client_id: clientIds[Math.floor(Math.random() * clientIds.length)],
+    client_id: `m2m.client.${Math.floor(Math.random() * 200) + 1}`,
     client_secret: clientSecret,
     scope: scope,
   };
@@ -31,7 +30,7 @@ export default function () {
 
   if (tokenResponse.status === 200) {
     const token = tokenResponse.json().access_token;
-    console.log('Successfully retrieved token:', token);
+    console.log(`Successfully retrieved token for ${tokenRequestBody.client_id} :${token}`);
 
     // You can now use the token in subsequent requests
     // Example:
