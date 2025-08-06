@@ -13,14 +13,16 @@ public class HybridCache<T>(HybridCache cache, ILogger<HybridCache<T>> logger) :
     public async Task<T?> GetAsync(string key)
     {
         using var activity = Activity.Current?.Source.StartActivity();
-        
-        // this will return the default if it's not in there
-        var result = await cache.GetOrCreateAsync<T?>(GetKey(key), _ => default);
-        if (result is null)
-        {
-            logger.LogInformation("cache miss for {Type}: {Key}", typeof(T).FullName, key);
-            await cache.RemoveAsync(key);
-        }
+
+        // this is a get, so expire immediately
+        var result = await cache.GetOrCreateAsync<T?>(GetKey(key),
+            _ => default,
+            new HybridCacheEntryOptions
+            {
+                Expiration = TimeSpan.Zero,
+                LocalCacheExpiration = TimeSpan.Zero,
+                Flags = HybridCacheEntryFlags.DisableLocalCache | HybridCacheEntryFlags.DisableDistributedCache
+            });
         
         return result;
     }
